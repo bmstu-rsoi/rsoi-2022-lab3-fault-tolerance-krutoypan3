@@ -12,6 +12,8 @@ import oganesyan.rsoi_lab2.library.model.library.LibraryRequest
 import oganesyan.rsoi_lab2.library.model.library.LibraryResponse
 import oganesyan.rsoi_lab2.library.model.library_book.LibraryIdUidResponse
 import oganesyan.rsoi_lab2.library.service.LibraryService
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -23,6 +25,9 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/library-system")
 class LibrarySystemController(private val libraryService: LibraryService) {
+
+    @GetMapping("/manage/health", produces = [APPLICATION_JSON_VALUE])
+    fun manageHealth() = ResponseEntity<Void>(HttpStatus.OK)
 
     @Operation(
         summary = "get_library_by_city",

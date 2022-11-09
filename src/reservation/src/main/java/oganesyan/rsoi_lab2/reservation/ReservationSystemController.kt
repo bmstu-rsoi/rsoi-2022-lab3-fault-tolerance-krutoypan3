@@ -1,7 +1,6 @@
 package oganesyan.rsoi_lab2.reservation
 
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.headers.Header
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -11,17 +10,18 @@ import oganesyan.rsoi_lab2.reservation.model.CreateReservationResponse
 import oganesyan.rsoi_lab2.reservation.model.RemoveReservationRequest
 import oganesyan.rsoi_lab2.reservation.model.ReservationByUsernameItemResponse
 import oganesyan.rsoi_lab2.reservation.service.ReservationService
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder
-import javax.validation.Valid
 
 
 @Tag(name = "library_system_controller")
 @RestController
 @RequestMapping("/reservation-system")
 class ReservationSystemController(private val reservationService: ReservationService) {
+    @GetMapping("/manage/health", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun manageHealth() = ResponseEntity<Void>(HttpStatus.OK)
 
     @Operation(
         summary = "get_reservations_by_username",

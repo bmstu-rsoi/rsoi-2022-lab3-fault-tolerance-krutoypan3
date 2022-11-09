@@ -18,6 +18,9 @@ import java.util.*
 @RequestMapping("/api/v1")
 class GatewayController(private val gatewayLibraryService: GatewayLibraryService) {
 
+    @GetMapping("/manage/health", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun manageHealth() = ResponseEntity<Void>(HttpStatus.OK)
+
     @Operation(
         summary = "get_library_by_city",
         responses = [
