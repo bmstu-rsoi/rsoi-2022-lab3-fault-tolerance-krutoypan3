@@ -379,7 +379,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"bookUid\": \"{{bookUid}}\",\n    \"libraryUid\": \"{{libraryUid}}\",\n    \"tillDate\": \"2021-10-11\"\n}"
+							"raw": "{\n    \"bookUid\": \"{{bookUid}}\",\n    \"libraryUid\": \"{{libraryUid}}\",\n    \"tillDate\": \"2023-10-11\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/v1/reservations",

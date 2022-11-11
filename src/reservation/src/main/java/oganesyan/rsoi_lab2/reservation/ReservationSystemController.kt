@@ -46,8 +46,10 @@ class ReservationSystemController(private val reservationService: ReservationSer
         @RequestParam("bookUid") bookUid: String,
         @RequestParam("libraryUid") libraryUid: String,
         @RequestParam("tillDate") tillDate: String,
+        @RequestParam("stars") stars: Int,
+        @RequestParam("available_count") available_count: Int,
     ): CreateReservationResponse = reservationService.putReservation(
-        CreateReservationRequest(username, bookUid, libraryUid, tillDate)
+        CreateReservationRequest(username = username, bookUid = bookUid, libraryUid = libraryUid, tillDate = tillDate, stars = stars, available_count = available_count)
     )
 
     @GetMapping("/removeReservation", produces = [MediaType.APPLICATION_JSON_VALUE])

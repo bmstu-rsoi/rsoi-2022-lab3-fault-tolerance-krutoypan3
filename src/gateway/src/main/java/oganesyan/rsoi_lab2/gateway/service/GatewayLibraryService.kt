@@ -15,5 +15,5 @@ interface GatewayLibraryService {
 
     fun getReservation(username: String): ArrayList<GatewayReservationResponse>
 
-    fun returnReservation(username: String, gatewayReservationReturnRequest: GatewayReservationReturnRequest, reservationUid: String)
+    fun returnReservation(username: String, gatewayReservationReturnRequest: GatewayReservationReturnRequest, reservationUid: String): GatewayBaseResponse
 }

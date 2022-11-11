@@ -1,25 +1,35 @@
 package oganesyan.rsoi_lab2.gateway.service
 
-import oganesyan.rsoi_lab2.gateway.error.ErrorBadRequest
-import oganesyan.rsoi_lab2.gateway.error.ErrorNotFound
+import oganesyan.rsoi_lab2.gateway.Const
+import oganesyan.rsoi_lab2.gateway.GatewayApp
+import oganesyan.rsoi_lab2.gateway.Queries.getObjByUrl
 import oganesyan.rsoi_lab2.gateway.model.*
 import org.json.JSONObject
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.client.*
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import org.springframework.web.util.UriComponentsBuilder
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 @Transactional
 @Service
-class GatewayLibraryServiceImpl: GatewayLibraryService {
+class GatewayLibraryServiceImpl @Autowired constructor(restTemplateBuilder: RestTemplateBuilder): GatewayLibraryService {
+    private val restTemplate = restTemplateBuilder.build()
 
 
     override fun getLibraryByCity(libraryRequest: GatewayLibraryRequest): GatewayLibraryResponse {
-        val url = UriComponentsBuilder.fromHttpUrl("http://library:8060/library-system/getLibraryByCity")
+        getObjByUrl(UriComponentsBuilder.fromHttpUrl(Const.URL_HEALTH_library).toUriString()).response.let { response ->
+            response.error?.let {
+                return GatewayLibraryResponse(
+                    response = response
+                )
+            }
+        }
+        val url = UriComponentsBuilder.fromHttpUrl(Const.URL_Library_getLibraryByCity)
             .queryParam("page", libraryRequest.page)
             .queryParam("size", libraryRequest.size)
             .queryParam("city", libraryRequest.city)
@@ -27,8 +37,8 @@ class GatewayLibraryServiceImpl: GatewayLibraryService {
 
         val obj = getObjByUrl(url)
 
-        val totalElements = obj.getInt("totalElements")
-        val librariesInfoJsonArray = obj.getJSONArray("items")
+        val totalElements = obj.jsonObject!!.getInt("totalElements")
+        val librariesInfoJsonArray = obj.jsonObject!!.getJSONArray("items")
 
         val count: Int = librariesInfoJsonArray.length()
         val librariesInfo: ArrayList<GatewayLibraryInfo> = ArrayList(count)
@@ -41,7 +51,15 @@ class GatewayLibraryServiceImpl: GatewayLibraryService {
     }
 
     override fun getBooksByLibrary(gatewayBooksByLibraryRequest: GatewayBooksByLibraryRequest): GatewayBookResponse {
-        val url = UriComponentsBuilder.fromHttpUrl("http://library:8060/library-system/books/getBooksByLibrary")
+        getObjByUrl(UriComponentsBuilder.fromHttpUrl(Const.URL_HEALTH_library).toUriString()).response.let { response ->
+            response.error?.let {
+                return GatewayBookResponse(
+                    response = response
+                )
+            }
+        }
+
+        val url = UriComponentsBuilder.fromHttpUrl(Const.URL_Library_getBooksByLibrary)
             .queryParam("library_uid", gatewayBooksByLibraryRequest.library_uid)
             .queryParam("page", gatewayBooksByLibraryRequest.page)
             .queryParam("size", gatewayBooksByLibraryRequest.size)
@@ -50,28 +68,42 @@ class GatewayLibraryServiceImpl: GatewayLibraryService {
 
         val obj = getObjByUrl(url)
 
-        val totalElements = obj.getInt("totalElements")
+        val totalElements = obj.jsonObject!!.getInt("totalElements")
 
-        val booksInfoJsonArray = obj.getJSONArray("items")
+        val booksInfoJsonArray = obj.jsonObject!!.getJSONArray("items")
 
         val count: Int = booksInfoJsonArray.length()
         val booksInfo: ArrayList<GatewayBookInfo> = ArrayList(count)
         for (i in 0 until count) {
             val jsonBook: JSONObject = booksInfoJsonArray.getJSONObject(i)
-            val bookInfo: GatewayBookInfo = parseGatewayBookInfo(jsonBook, gatewayBooksByLibraryRequest.library_uid?: "")
+            val bookInfo: GatewayBookInfo =
+                parseGatewayBookInfo(jsonBook, gatewayBooksByLibraryRequest.library_uid ?: "")
             booksInfo.add(bookInfo)
         }
-        return GatewayBookResponse(gatewayBooksByLibraryRequest.page, gatewayBooksByLibraryRequest.size, totalElements, booksInfo)
+        return GatewayBookResponse(
+            gatewayBooksByLibraryRequest.page,
+            gatewayBooksByLibraryRequest.size,
+            totalElements,
+            booksInfo
+        )
     }
 
     override fun getRating(username: String): GatewayRatingResponse {
-        val url = UriComponentsBuilder.fromHttpUrl("http://rating:8050/rating-system/getRatingByUsername")
+        getObjByUrl(UriComponentsBuilder.fromHttpUrl(Const.URL_HEALTH_rating).toUriString()).response.let { response ->
+            response.error?.let {
+                return GatewayRatingResponse(
+                    response = response
+                )
+            }
+        }
+
+        val url = UriComponentsBuilder.fromHttpUrl(Const.URL_Rating_getRatingByUsername)
             .queryParam("username", username)
             .toUriString()
 
         val obj = getObjByUrl(url)
 
-        return GatewayRatingResponse(username, obj.getInt("stars"))
+        return GatewayRatingResponse(username, obj.jsonObject!!.getInt("stars"))
     }
 
     override fun setReservation(
@@ -79,113 +111,168 @@ class GatewayLibraryServiceImpl: GatewayLibraryService {
         gatewayReservationRequest: GatewayReservationRequest,
     ): GatewayReservationResponse {
 
-        val url = UriComponentsBuilder.fromHttpUrl("http://reservation:8070/reservation-system/putReservation")
+        getObjByUrl(
+            UriComponentsBuilder.fromHttpUrl(Const.URL_HEALTH_reservation).toUriString()
+        ).response.let { response ->
+            response.error?.let {
+                return GatewayReservationResponse(
+                    response = response
+                )
+            }
+        }
+        getObjByUrl(UriComponentsBuilder.fromHttpUrl(Const.URL_HEALTH_library).toUriString()).response.let { response ->
+            response.error?.let {
+                return GatewayReservationResponse(
+                    response = response
+                )
+            }
+        }
+        getObjByUrl(UriComponentsBuilder.fromHttpUrl(Const.URL_HEALTH_rating).toUriString()).response.let { response ->
+            response.error?.let {
+                return GatewayReservationResponse(
+                    response = response
+                )
+            }
+        }
+
+        // Здесь отправляем запрос на получение рейтинга пользователя по username
+        val urlStars = "http://localhost:8050/rating-system/getRatingByUsername?username=$username"
+        val stars = restTemplate.getForObject(urlStars, GatewayRatingResponse::class.java)?.stars ?: 30
+
+        val urlAvailableCount = "http://localhost:8060/library-system/library-books/getAvailableCountByBookUidAndLibraryUid?book_uid=${gatewayReservationRequest.bookUid}&library_uid=${gatewayReservationRequest.libraryUid}"
+        val availableCount = restTemplate.getForObject(urlAvailableCount, GatewayLibraryBookInfo::class.java)?.available_count
+
+
+
+        val url = UriComponentsBuilder.fromHttpUrl(Const.URL_Reservation_putReservation)
             .queryParam("username", username)
             .queryParam("bookUid", gatewayReservationRequest.bookUid)
             .queryParam("libraryUid", gatewayReservationRequest.libraryUid)
             .queryParam("tillDate", gatewayReservationRequest.tillDate)
+            .queryParam("stars",stars)
+            .queryParam("available_count",availableCount)
             .toUriString()
 
         val obj = getObjByUrl(url)
 
-        println("\n$obj\n")
-
-        val urlBook = UriComponentsBuilder.fromHttpUrl("http://library:8060/library-system/books/getBookByUid")
+        val urlBook = UriComponentsBuilder.fromHttpUrl(Const.URL_Library_getBookByUid)
             .queryParam("book_uid", gatewayReservationRequest.bookUid)
             .toUriString()
         val objBook = getObjByUrl(urlBook)
 
-        val url2 = UriComponentsBuilder.fromHttpUrl("http://library:8060/library-system/library-books/getAvailableCountByBookUidAndLibraryUid")
-            .queryParam("library_uid", gatewayReservationRequest.libraryUid)
-            .queryParam("book_uid", gatewayReservationRequest.bookUid)
-            .toUriString()
+        val url2 =
+            UriComponentsBuilder.fromHttpUrl(Const.URL_Library_getAvailableCountByBookUidAndLibraryUid)
+                .queryParam("library_uid", gatewayReservationRequest.libraryUid)
+                .queryParam("book_uid", gatewayReservationRequest.bookUid)
+                .toUriString()
         val obj2 = getObjByUrl(url2)
 
-        println("\n$obj2\n")
-
         val bookInfo = GatewayBookInfo(
-            objBook.getString("bookUid"),
-            objBook.getString("name"),
-            objBook.getString("author"),
-            objBook.getString("genre"),
-            objBook.getString("condition"),
-            obj2.getLong("available_count"), // TODO тут ТАК-ТО NULL ПРИХОДИТ, НУЖНО САМОМУ ПОЛУЧАТЬ ЭТО ЧИСЛО \\ Upd. Сделал вроде бы
+            objBook.jsonObject!!.getString("bookUid"),
+            objBook.jsonObject!!.getString("name"),
+            objBook.jsonObject!!.getString("author"),
+            objBook.jsonObject!!.getString("genre"),
+            objBook.jsonObject!!.getString("condition"),
+            obj2.jsonObject!!.getLong("available_count"),
         )
 
-        val urlLibrary = UriComponentsBuilder.fromHttpUrl("http://library:8060/library-system/getLibraryByUid")
+        val urlLibrary = UriComponentsBuilder.fromHttpUrl(Const.URL_Library_getLibraryByUid)
             .queryParam("library_uid", gatewayReservationRequest.libraryUid)
             .toUriString()
         val objLibrary = getObjByUrl(urlLibrary)
         val libraryInfo = GatewayLibraryInfo(
-            libraryUid = objLibrary.getString("libraryUid"),
-            name = objLibrary.getString("name"),
-            city = objLibrary.getString("city"),
-            address = objLibrary.getString("address"),
+            libraryUid = objLibrary.jsonObject!!.getString("libraryUid"),
+            name = objLibrary.jsonObject!!.getString("name"),
+            city = objLibrary.jsonObject!!.getString("city"),
+            address = objLibrary.jsonObject!!.getString("address"),
         )
 
         return GatewayReservationResponse(
-            obj.getString("status"),
-            obj.getString("startDate"),
-            obj.getString("tillDate"),
-            obj.getString("reservation_uid"),
+            obj.jsonObject?.getString("status"),
+            obj.jsonObject?.getString("startDate"),
+            obj.jsonObject?.getString("tillDate"),
+            obj.jsonObject?.getString("reservation_uid"),
             bookInfo,
             libraryInfo
         )
     }
 
     override fun getReservation(username: String): ArrayList<GatewayReservationResponse> {
-        val url = UriComponentsBuilder.fromHttpUrl("http://reservation:8070/reservation-system/getReservationsByUsername")
-            .queryParam("username", username)
-            .toUriString()
+        getObjByUrl(
+            UriComponentsBuilder.fromHttpUrl(Const.URL_HEALTH_reservation).toUriString()
+        ).response.let { response ->
+            response.error?.let {
+                return arrayListOf(
+                    GatewayReservationResponse(
+                        response = response
+                    )
+                )
+            }
+        }
+        getObjByUrl(UriComponentsBuilder.fromHttpUrl(Const.URL_HEALTH_library).toUriString()).response.let { response ->
+            response.error?.let {
+                return arrayListOf(
+                    GatewayReservationResponse(
+                        response = response
+                    )
+                )
+            }
+        }
+
+        val url =
+            UriComponentsBuilder.fromHttpUrl(Const.URL_Reservation_getReservationsByUsername)
+                .queryParam("username", username)
+                .toUriString()
 
         val obj = getObjByUrl(url)
 
         println("\n$obj\n")
 
-        val obj2 = obj.getJSONArray("reservations")
+        val obj2 = obj.jsonObject!!.getJSONArray("reservations")
 
         println("\n$obj2\n")
 
         val items: ArrayList<GatewayReservationResponse> = arrayListOf()
 
         val size = obj2.length()
-        for (i in 0 until size){
+        for (i in 0 until size) {
             val obj22 = obj2.getJSONObject(i)
 
             val bookUid = obj22.getString("book_uid")
             val libraryUid = obj22.getString("library_uid")
 
-            val urlBook = UriComponentsBuilder.fromHttpUrl("http://library:8060/library-system/books/getBookByUid")
+            val urlBook = UriComponentsBuilder.fromHttpUrl(Const.URL_Library_getBookByUid)
                 .queryParam("book_uid", bookUid)
                 .toUriString()
             val objBook = getObjByUrl(urlBook)
 
-            val url2 = UriComponentsBuilder.fromHttpUrl("http://library:8060/library-system/library-books/getAvailableCountByBookUidAndLibraryUid")
-                .queryParam("library_uid", libraryUid)
-                .queryParam("book_uid", bookUid)
-                .toUriString()
+            val url2 =
+                UriComponentsBuilder.fromHttpUrl(Const.URL_Library_getAvailableCountByBookUidAndLibraryUid)
+                    .queryParam("library_uid", libraryUid)
+                    .queryParam("book_uid", bookUid)
+                    .toUriString()
             val obj3 = getObjByUrl(url2)
 
             println("\n$obj3\n")
 
             val bookInfo = GatewayBookInfo(
-                objBook.getString("bookUid"),
-                objBook.getString("name"),
-                objBook.getString("author"),
-                objBook.getString("genre"),
-                objBook.getString("condition"),
-                obj3.getLong("available_count"), // TODO тут ТАК-ТО NULL ПРИХОДИТ, НУЖНО САМОМУ ПОЛУЧАТЬ ЭТО ЧИСЛО \\ Upd. Сделал вроде бы
+                objBook.jsonObject!!.getString("bookUid"),
+                objBook.jsonObject!!.getString("name"),
+                objBook.jsonObject!!.getString("author"),
+                objBook.jsonObject!!.getString("genre"),
+                objBook.jsonObject!!.getString("condition"),
+                obj3.jsonObject!!.getLong("available_count"),
             )
 
-            val urlLibrary = UriComponentsBuilder.fromHttpUrl("http://library:8060/library-system/getLibraryByUid")
+            val urlLibrary = UriComponentsBuilder.fromHttpUrl(Const.URL_Library_getLibraryByUid)
                 .queryParam("library_uid", libraryUid)
                 .toUriString()
             val objLibrary = getObjByUrl(urlLibrary)
             val libraryInfo = GatewayLibraryInfo(
-                libraryUid = objLibrary.getString("libraryUid"),
-                name = objLibrary.getString("name"),
-                city = objLibrary.getString("city"),
-                address = objLibrary.getString("address"),
+                libraryUid = objLibrary.jsonObject!!.getString("libraryUid"),
+                name = objLibrary.jsonObject!!.getString("name"),
+                city = objLibrary.jsonObject!!.getString("city"),
+                address = objLibrary.jsonObject!!.getString("address"),
             )
 
             val sdf = SimpleDateFormat("yyyy-MM-dd")
@@ -205,9 +292,29 @@ class GatewayLibraryServiceImpl: GatewayLibraryService {
         return items
     }
 
-    override fun returnReservation(username: String, gatewayReservationReturnRequest: GatewayReservationReturnRequest, reservationUid: String) {
+    override fun returnReservation(
+        username: String,
+        gatewayReservationReturnRequest: GatewayReservationReturnRequest,
+        reservationUid: String,
+    ): GatewayBaseResponse {
+
+        getObjByUrl(
+            UriComponentsBuilder.fromHttpUrl(Const.URL_HEALTH_reservation).toUriString()
+        ).response.let { response ->
+            response.error?.let {
+                return response
+            }
+        }
+        getObjByUrl(UriComponentsBuilder.fromHttpUrl(Const.URL_HEALTH_library).toUriString()).response.let { response ->
+            response.error?.let {
+                return response
+            }
+        }
+        // TODO Здесь рейтинг не составляет важной составляющей, поэтому мы ставим наши попытки вернуть книгу в очередь
+        //  и кидаем запросы на сервер каждый N период времени, а пользователю отдаём положительный результат
+
         // Тут мы меняем status кniggi на RETURNED или EXPIRED
-        val url = UriComponentsBuilder.fromHttpUrl("http://reservation:8070/reservation-system/removeReservation")
+        val url = UriComponentsBuilder.fromHttpUrl(Const.URL_Reservation_removeReservation)
             .queryParam("username", username)
             .queryParam("reservationUid", reservationUid)
             .queryParam("date", gatewayReservationReturnRequest.date)
@@ -215,36 +322,37 @@ class GatewayLibraryServiceImpl: GatewayLibraryService {
         val objReservationByUsernameItem = getObjByUrl(url)
 
         // Тут мы меняем кол-во книг в библиотеке
-        val url2 = UriComponentsBuilder.fromHttpUrl("http://library:8060/library-system/library-books/changeAvailableCountByBookUidAndLibraryUid")
-            .queryParam("book_uid", objReservationByUsernameItem.getString("book_uid"))
-            .queryParam("library_uid", objReservationByUsernameItem.getString("library_uid"))
+        val url2 = UriComponentsBuilder.fromHttpUrl(Const.URL_Library_changeAvailableCountByBookUidAndLibraryUid)
+            .queryParam("book_uid", objReservationByUsernameItem.jsonObject!!.getString("book_uid"))
+            .queryParam("library_uid", objReservationByUsernameItem.jsonObject!!.getString("library_uid"))
             .queryParam("available_count", 1)
             .toUriString()
-        getObjByUrlNotResponse(url2)
-        // TODO Нужно обновить кол-во книг в библиотеке + изменить статус книги \\ Upd. Сверху сделано.
+        getObjByUrl(url2)
 
 
         var stars = 0
         val sdf = SimpleDateFormat("yyyy-MM-dd")
 
-        val currentDate = Date().time
+        val currentDate = Date().time + 10800000 // Добавляем 3 часа (т.к. в Postman, в тестах используется Московское время)
 
-        val tillDate = sdf.parse(objReservationByUsernameItem.getString("till_date")).time
+        val tillDate = sdf.parse(objReservationByUsernameItem.jsonObject!!.getString("till_date")).time
 
         if (currentDate > tillDate)
             stars -= 10 // Если просрочка, то отнимаем 10 звезд
         else
             stars += 1 // Если книга возвращена вовремя, то добавляем 1 звезду
 
-        println("\n$username $stars\n")
-
-        val url3 = UriComponentsBuilder.fromHttpUrl("http://rating:8050/rating-system/setRatingByUsername")
+        val url3 = UriComponentsBuilder.fromHttpUrl(Const.URL_Rating_setRatingByUsername)
             .queryParam("username", username)
             .queryParam("stars", stars)
             .toUriString()
 
-        getObjByUrlNotResponse(url3)
-        // TODO Также нужно поднять \ опустить рейтинг пользователю \\ Upd. Сделано выше.
+        val changeRatingResult = getObjByUrl(url3)
+
+        if (changeRatingResult.response.statusCode == HttpStatus.NOT_FOUND)
+            GatewayApp.stopList.add(url3)
+
+        return GatewayBaseResponse()
     }
 
     private fun parseGatewayBookInfo(obj: JSONObject, libraryUid: String): GatewayBookInfo {
@@ -254,14 +362,29 @@ class GatewayLibraryServiceImpl: GatewayLibraryService {
         val genre = obj.getString("genre")
         val condition = obj.getString("condition")
 
-        val url = UriComponentsBuilder.fromHttpUrl("http://library:8060/library-system/library-books/getAvailableCountByBookUidAndLibraryUid")
+        getObjByUrl(UriComponentsBuilder.fromHttpUrl(Const.URL_HEALTH_library).toUriString()).response.let { response ->
+            response.error?.let {
+                return GatewayBookInfo(
+                    response = response
+                )
+            }
+        }
+
+        val url = UriComponentsBuilder.fromHttpUrl(Const.URL_Library_getAvailableCountByBookUidAndLibraryUid)
             .queryParam("library_uid", libraryUid)
             .queryParam("book_uid", bookUid)
             .toUriString()
-        val obj2 = getObjByUrl(url)
-        println("\n$obj2\n")
-        val availableCount = obj2.getString("available_count")
-        return GatewayBookInfo(bookUid, name, author, genre, condition, availableCount.toLong())
+        val jsonObject = getObjByUrl(url)
+        println("\n$jsonObject\n")
+        val availableCount = jsonObject.jsonObject!!.getString("available_count")
+        return GatewayBookInfo(
+            bookUid = bookUid,
+            name = name,
+            author = author,
+            genre = genre,
+            condition = condition,
+            availableCount = availableCount.toLong()
+        )
     }
 
     private fun parseGatewayLibraryInfo(obj: JSONObject): GatewayLibraryInfo {
@@ -270,100 +393,5 @@ class GatewayLibraryServiceImpl: GatewayLibraryService {
         val address = obj.getString("address")
         val city = obj.getString("city")
         return GatewayLibraryInfo(libraryUid, name, address, city)
-    }
-
-    private fun postObjByUrl(url: String): JSONObject{
-        println("\nTESTO : POINT-1\n")
-        val headers = HttpHeaders()
-        headers[HttpHeaders.ACCEPT] = MediaType.APPLICATION_JSON_VALUE
-        val entity: HttpEntity<*> = HttpEntity<Any>(headers)
-        println("\nTESTO : POINT-2\n")
-        val restOperations: RestOperations = RestTemplate()
-
-        println("\nTESTO : $url\n")
-
-        println("\nTESTO : POINT-3\n")
-        val response: ResponseEntity<String> = try {
-            restOperations.exchange(
-                url,
-                HttpMethod.POST,
-                entity,
-                String::class.java
-            )
-        } catch (e: HttpClientErrorException) {
-            println(e)
-            throw ErrorBadRequest(e.toString(), ArrayList())
-        } catch (e: HttpServerErrorException) {
-            println(e)
-            throw ErrorBadRequest(e.toString(), ArrayList())
-        } catch (e: RestClientException) {
-            println(e)
-            throw ErrorBadRequest(e.toString(), ArrayList())
-        }
-        if (response.statusCode == HttpStatus.NOT_FOUND) {
-            throw ErrorNotFound(response.body?: "")
-        }
-        if (response.statusCode == HttpStatus.BAD_REQUEST) {
-            throw ErrorBadRequest(response.body ?: "", ArrayList())
-        }
-        println("\nTESTO : POINT-4\n")
-        return JSONObject(response.body)
-    }
-
-    private fun getObjByUrl(url: String): JSONObject{
-        val headers = HttpHeaders()
-        headers[HttpHeaders.ACCEPT] = MediaType.APPLICATION_JSON_VALUE
-        val entity: HttpEntity<*> = HttpEntity<Any>(headers)
-
-        val restOperations: RestOperations = RestTemplate()
-        val response: ResponseEntity<String> = try {
-            restOperations.exchange(
-                url,
-                HttpMethod.GET,
-                entity,
-                String::class.java
-            )
-        } catch (e: HttpClientErrorException) {
-            println(e)
-            throw ErrorBadRequest(e.toString(), ArrayList())
-        } catch (e: HttpServerErrorException) {
-            println(e)
-            throw ErrorBadRequest(e.toString(), ArrayList())
-        } catch (e: RestClientException) {
-            println(e)
-            throw ErrorBadRequest(e.toString(), ArrayList())
-        }
-        if (response.statusCode == HttpStatus.NOT_FOUND) {
-            throw ErrorNotFound(response.body?: "")
-        }
-        if (response.statusCode == HttpStatus.BAD_REQUEST) {
-            throw ErrorBadRequest(response.body ?: "", ArrayList())
-        }
-        return JSONObject(response.body)
-    }
-
-    private fun getObjByUrlNotResponse(url: String){
-        val headers = HttpHeaders()
-        headers[HttpHeaders.ACCEPT] = MediaType.APPLICATION_JSON_VALUE
-        val entity: HttpEntity<*> = HttpEntity<Any>(headers)
-
-        val restOperations: RestOperations = RestTemplate()
-        try {
-            restOperations.exchange(
-                url,
-                HttpMethod.GET,
-                entity,
-                String::class.java
-            )
-        } catch (e: HttpClientErrorException) {
-            println(e)
-            throw ErrorBadRequest(e.toString(), ArrayList())
-        } catch (e: HttpServerErrorException) {
-            println(e)
-            throw ErrorBadRequest(e.toString(), ArrayList())
-        } catch (e: RestClientException) {
-            println(e)
-            throw ErrorBadRequest(e.toString(), ArrayList())
-        }
     }
 }

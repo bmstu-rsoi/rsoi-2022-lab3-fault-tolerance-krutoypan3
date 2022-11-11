@@ -32,29 +32,24 @@ open class ReservationServiceImpl@Autowired constructor(
         println("\nTESTO : POINT-6\n")
         // TODO Тут нужно рассчитывать максимальное кол-во книг, которое может взять пользователь
         // Здесь отправляем запрос на получение рейтинга пользователя по username
-        val url = "http://rating:8050/rating-system/getRatingByUsername?username=${request.username}"
-        val stars = restTemplate.getForObject(url, ReservationRatingResponse::class.java)?.stars ?: 30
 
-        println("\nTESTO : POINT-6.5: stars:$stars\n")
+        println("\nTESTO : POINT-6.5: stars:${request.stars}\n")
 
 
-        val maxBooksCount = stars / 10
+        val maxBooksCount = request.stars!! / 10
         println("\nTESTO : POINT-7\n")
         println("\nreservation.size:${reservations.size}\n")
         if (reservations.size < maxBooksCount) {
-            // TODO Нужно узнать, есть ли книга в библиотеке
-            val url2 = "http://library:8060/library-system/library-books/getAvailableCountByBookUidAndLibraryUid?book_uid=${request.bookUid}&library_uid=${request.libraryUid}"
-            val availableCount = restTemplate.getForObject(url2, ReservationLibraryBookInfo::class.java)?.available_count
-            println("\nTESTO : POINT-7.5: availableCount:$availableCount\n")
-            if (availableCount != null) {
-                if (availableCount > 0) {
+            println("\nTESTO : POINT-7.5: availableCount:${request.available_count}\n")
+            if (request.available_count != null) {
+                if (request.available_count!! > 0) {
                     val entity = ReservationEntities()
                     entity.book_uid = UUID.fromString(request.bookUid)
                     entity.library_uid = UUID.fromString(request.libraryUid)
                     entity.username = request.username
                     entity.reservation_uid = UUID.randomUUID()
 
-                    entity.start_date = Timestamp(Date().time)
+                    entity.start_date = Timestamp(Date().time + 10800000)
 
 
                     val sdf = SimpleDateFormat("yyyy-MM-dd")
@@ -72,7 +67,8 @@ open class ReservationServiceImpl@Autowired constructor(
 
                     println("\nTESTO : POINT-8 NOT NULL\n")
 
-
+                    println(entity.status)
+                    println(entity)
                     return CreateReservationResponse(
                         status = entity.status,
                         startDate = startDate,
@@ -100,7 +96,7 @@ open class ReservationServiceImpl@Autowired constructor(
 
         val sdf = SimpleDateFormat("yyyy-MM-dd")
 
-        val current_date = Date().time
+        val current_date = Date().time + 10800000
 
         println("\n${reservation.till_date}\n")
 

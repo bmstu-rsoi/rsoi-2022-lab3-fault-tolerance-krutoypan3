@@ -5,4 +5,6 @@ data class CreateReservationRequest(
     var bookUid: String,
     var libraryUid: String,
     var tillDate: String,
+    var stars: Int? = null,
+    var available_count: Int? = null,
 )

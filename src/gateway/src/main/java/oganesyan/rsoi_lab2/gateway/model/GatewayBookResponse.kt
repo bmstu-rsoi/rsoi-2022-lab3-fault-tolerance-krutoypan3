@@ -1,8 +1,9 @@
 package oganesyan.rsoi_lab2.gateway.model
 
 data class GatewayBookResponse(
-    val page: Int?,
-    val pageSize: Int?,
-    val totalElements: Int?,
-    val items: List<GatewayBookInfo>
+    val page: Int? = null,
+    val pageSize: Int? = null,
+    val totalElements: Int? = null,
+    val items: List<GatewayBookInfo>? = null,
+    var response: GatewayBaseResponse = GatewayBaseResponse()
 )
