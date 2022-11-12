@@ -1111,6 +1111,9 @@
 											"    pm.expect(reservation.library.name).to.be.eq(\"Библиотека имени 7 Непьющих\")",
 											"    pm.expect(reservation.library.city).to.be.eq(\"Москва\")",
 											"    pm.expect(reservation.library.address).to.be.eq(\"2-я Бауманская ул., д.5, стр.1\")",
+											"",
+											"    const reservationUid = pm.collectionVariables.get(\"reservationUid\");",
+											"    console.log(reservationUid);",
 											"})"
 										],
 										"type": "text/javascript"
