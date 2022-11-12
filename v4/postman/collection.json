@@ -256,7 +256,7 @@
 									"",
 									"    const response = pm.response.json();",
 									"    pm.expect(response.stars).to.be.not.undefined",
-									"    pm.environment.set(\"stars\", response.stars)",
+									"    pm.globals.set(\"stars\", response.stars)",
 									"})"
 								],
 								"type": "text/javascript"
@@ -357,7 +357,7 @@
 									"    pm.expect(response.library.city).to.be.eq(\"Москва\")",
 									"    pm.expect(response.library.address).to.be.eq(\"2-я Бауманская ул., д.5, стр.1\")",
 									"",
-									"    pm.environment.set(\"reservationUid\", response.reservationUid)",
+									"    pm.globals.set(\"reservationUid\", response.reservationUid)",
 									"})"
 								],
 								"type": "text/javascript"
@@ -459,7 +459,7 @@
 									"",
 									"    const bookUid = pm.collectionVariables.get(\"bookUid\")",
 									"    const libraryUid = pm.collectionVariables.get(\"libraryUid\")",
-									"    const reservationUid = pm.environment.get(\"reservationUid\")",
+									"    const reservationUid = pm.globals.get(\"reservationUid\")",
 									"",
 									"    const response = pm.response.json();",
 									"    pm.expect(response).to.be.an(\"array\")",
@@ -553,7 +553,7 @@
 								"exec": [
 									"pm.test(\"Вернуть книгу\", () => {",
 									"    pm.response.to.have.status(204)",
-									"    const reservationUid = pm.environment.get(\"reservationUid\");",
+									"    const reservationUid = pm.globals.get(\"reservationUid\");",
 									"    console.log(reservationUid);",
 									"})"
 								],
@@ -659,7 +659,7 @@
 									"    pm.response.to.have.status(200)",
 									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.contains(\"application/json\");",
 									"",
-									"    const stars = Number(pm.environment.get(\"stars\"))",
+									"    const stars = Number(pm.globals.get(\"stars\"))",
 									"",
 									"    const response = pm.response.json();",
 									"    pm.expect(response.stars).to.be.eq(stars + 1)",
@@ -1029,9 +1029,9 @@
 											"    pm.expect(response.library.city).to.be.eq(\"Москва\")",
 											"    pm.expect(response.library.address).to.be.eq(\"2-я Бауманская ул., д.5, стр.1\")",
 											"",
-											"    pm.environment.set(\"reservationUid\", response.reservationUid)",
+											"    pm.globals.set(\"reservationUid\", response.reservationUid)",
 											"",
-											"    const reservationUid = pm.environment.get(\"reservationUid\");",
+											"    const reservationUid = pm.globals.get(\"reservationUid\");",
 											"    console.log(reservationUid);",
 											"})"
 										],
@@ -1093,7 +1093,7 @@
 											"",
 											"    const bookUid = pm.collectionVariables.get(\"bookUid\")",
 											"    const libraryUid = pm.collectionVariables.get(\"libraryUid\")",
-											"    const reservationUid = pm.environment.get(\"reservationUid\")",
+											"    const reservationUid = pm.globals.get(\"reservationUid\")",
 											"",
 											"    const response = pm.response.json();",
 											"    pm.expect(response).to.be.an(\"array\")",
@@ -1168,7 +1168,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"const reservationUid = pm.environment.get(\"reservationUid\");\r",
+											"const reservationUid = pm.globals.get(\"reservationUid\");\r",
 											"console.log(reservationUid);"
 										],
 										"type": "text/javascript"
@@ -1274,7 +1274,7 @@
 											"    pm.response.to.have.status(200)",
 											"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.contains(\"application/json\");",
 											"",
-											"    const stars = Number(pm.environment.get(\"stars\"))",
+											"    const stars = Number(pm.globals.get(\"stars\"))",
 											"",
 											"    const response = pm.response.json();",
 											"    pm.expect(response.stars).to.be.eq(stars + 1)",
