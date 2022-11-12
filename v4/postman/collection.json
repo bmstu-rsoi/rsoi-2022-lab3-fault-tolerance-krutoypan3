@@ -1028,6 +1028,9 @@
 											"    pm.expect(response.library.address).to.be.eq(\"2-я Бауманская ул., д.5, стр.1\")",
 											"",
 											"    pm.collectionVariables.set(\"reservationUid\", response.reservationUid)",
+											"",
+											"    const reservationUid = pm.collectionVariables.get(\"reservationUid\");",
+											"    console.log(reservationUid);",
 											"})"
 										],
 										"type": "text/javascript"
@@ -1038,8 +1041,7 @@
 									"script": {
 										"exec": [
 											"setTimeout(() => {}, 60000);\r",
-											"const reservationUid = pm.collectionVariables.get(\"reservationUid\");\r",
-											"console.log(reservationUid);"
+											""
 										],
 										"type": "text/javascript"
 									}
