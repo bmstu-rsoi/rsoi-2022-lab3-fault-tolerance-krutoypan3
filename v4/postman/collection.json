@@ -8,6 +8,7 @@
 	"item": [
 		{
 			"name": "success",
+			"name": "step0",
 			"item": [
 				{
 					"name": "[success] Получить список библиотек в городе",
