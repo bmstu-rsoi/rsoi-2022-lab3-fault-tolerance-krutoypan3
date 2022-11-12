@@ -1027,9 +1027,9 @@
 											"    pm.expect(response.library.city).to.be.eq(\"Москва\")",
 											"    pm.expect(response.library.address).to.be.eq(\"2-я Бауманская ул., д.5, стр.1\")",
 											"",
-											"    pm.collectionVariables.set(\"reservationUid\", response.reservationUid)",
+											"    pm.globals.set(\"reservationUid\", response.reservationUid)",
 											"",
-											"    const reservationUid = pm.collectionVariables.get(\"reservationUid\");",
+											"    const reservationUid = pm.globals.get(\"reservationUid\");",
 											"    console.log(reservationUid);",
 											"})"
 										],
