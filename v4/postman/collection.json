@@ -1037,7 +1037,9 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"setTimeout(() => {}, 60000); "
+											"setTimeout(() => {}, 60000);\r",
+											"const reservationUid = pm.collectionVariables.get(\"reservationUid\");\r",
+											"console.log(reservationUid);"
 										],
 										"type": "text/javascript"
 									}
@@ -1160,8 +1162,8 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"const reservationUid = pm.collectionVariables.get(\"reservationUid\");",
-											"console.log(reservationUid)"
+											"const reservationUid = pm.collectionVariables.get(\"reservationUid\");\r",
+											"console.log(reservationUid);"
 										],
 										"type": "text/javascript"
 									}
