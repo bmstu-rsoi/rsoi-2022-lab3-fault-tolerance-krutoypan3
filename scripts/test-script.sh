@@ -22,7 +22,7 @@ timed() {
 }
 
 step() {
-  local step=$0
+  local step=$1
   [[ $((step % 2)) -eq 0 ]] && operation="start" || operation="stop"
 
   printf "=== Step %d: %s %s ===\n" "$step" "$operation" "$service"
@@ -46,7 +46,6 @@ trap 'timed $start' EXIT
 
 printf "=== Start test scenario ===\n"
 
-step 0
 # stop service
 step 1
 

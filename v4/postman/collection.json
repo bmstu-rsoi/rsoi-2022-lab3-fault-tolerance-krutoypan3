@@ -7,7 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "step0",
+			"name": "success",
 			"item": [
 				{
 					"name": "[success] Получить список библиотек в городе",
