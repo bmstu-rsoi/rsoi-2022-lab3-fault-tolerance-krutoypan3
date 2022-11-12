@@ -310,8 +310,6 @@ class GatewayLibraryServiceImpl @Autowired constructor(restTemplateBuilder: Rest
                 return response
             }
         }
-        // TODO Здесь рейтинг не составляет важной составляющей, поэтому мы ставим наши попытки вернуть книгу в очередь
-        //  и кидаем запросы на сервер каждый N период времени, а пользователю отдаём положительный результат
 
         // Тут мы меняем status кniggi на RETURNED или EXPIRED
         val url = UriComponentsBuilder.fromHttpUrl(Const.URL_Reservation_removeReservation)
