@@ -36,8 +36,6 @@ step() {
     --delay-request=100 \
     --folder=step"$step" \
     --export-environment "$variant"/postman/environment.json\
-    --globals "$variant"/postman/globals.json \
-    --export-globals "$variant"/postman/globals.json \
     --environment "$variant"/postman/environment.json \
     "$variant"/postman/collection.json
 
