@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "46187466-d919-437e-b5cf-f1586d23c249",
+		"_postman_id": "496c1683-aa35-42af-be31-c749d5b05274",
 		"name": "[rsoi][lab3] Library System",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "976707"
+		"_exporter_id": "23425510"
 	},
 	"item": [
 		{
@@ -1152,6 +1152,16 @@
 											"pm.test(\"Вернуть книгу\", () => {",
 											"    pm.response.to.have.status(204)",
 											"})"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const reservationUid = pm.collectionVariables.get(\"reservationUid\");",
+											"console.log(reservationUid)"
 										],
 										"type": "text/javascript"
 									}
