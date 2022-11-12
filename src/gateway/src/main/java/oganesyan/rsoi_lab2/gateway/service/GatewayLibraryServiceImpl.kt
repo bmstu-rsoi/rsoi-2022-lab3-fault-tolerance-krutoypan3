@@ -136,10 +136,10 @@ class GatewayLibraryServiceImpl @Autowired constructor(restTemplateBuilder: Rest
         }
 
         // Здесь отправляем запрос на получение рейтинга пользователя по username
-        val urlStars = "http://localhost:8050/rating-system/getRatingByUsername?username=$username"
+        val urlStars = "${Const.URL_Rating_getRatingByUsername}?username=$username"
         val stars = restTemplate.getForObject(urlStars, GatewayRatingResponse::class.java)?.stars ?: 30
 
-        val urlAvailableCount = "http://localhost:8060/library-system/library-books/getAvailableCountByBookUidAndLibraryUid?book_uid=${gatewayReservationRequest.bookUid}&library_uid=${gatewayReservationRequest.libraryUid}"
+        val urlAvailableCount = "${Const.URL_Library_getAvailableCountByBookUidAndLibraryUid}?book_uid=${gatewayReservationRequest.bookUid}&library_uid=${gatewayReservationRequest.libraryUid}"
         val availableCount = restTemplate.getForObject(urlAvailableCount, GatewayLibraryBookInfo::class.java)?.available_count
 
 
