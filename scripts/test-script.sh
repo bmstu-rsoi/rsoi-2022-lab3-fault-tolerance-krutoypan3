@@ -21,13 +21,21 @@ timed() {
   LC_NUMERIC=C printf "\nTotal runtime: %02d min %02d seconds\n" "$dm" "$ds"
 }
 
+success() {
+  newman run \
+    --delay-request=100 \
+    --folder=success \
+    --environment "$variant"/postman/environment.json \
+    "$variant"/postman/collection.json
+}
+
 step() {
   local step=$1
   [[ $((step % 2)) -eq 0 ]] && operation="start" || operation="stop"
 
   printf "=== Step %d: %s %s ===\n" "$step" "$operation" "$service"
 
-  docker-compose "$operation" "$service"
+  docker compose "$operation" "$service"
   if [[ "$operation" == "start" ]]; then
     "$path"/wait-for.sh -t 120 "http://localhost:$port/manage/health" -- echo "Host localhost:$port is active"
   fi
@@ -35,7 +43,7 @@ step() {
   newman run \
     --delay-request=100 \
     --folder=step"$step" \
-    --export-environment "$variant"/postman/environment.json\
+    --export-environment "$variant"/postman/environment.json \
     --environment "$variant"/postman/environment.json \
     "$variant"/postman/collection.json
 
@@ -46,6 +54,9 @@ start=$(date +%s)
 trap 'timed $start' EXIT
 
 printf "=== Start test scenario ===\n"
+
+# success execute
+succes
 
 # stop service
 step 1
